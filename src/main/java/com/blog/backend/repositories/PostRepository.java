@@ -1,0 +1,13 @@
+package com.blog.backend.repositories;
+
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.blog.backend.domain.entities.Posts;
+
+@Repository
+public interface PostRepository extends JpaRepository<Posts, UUID>{
+
+}
