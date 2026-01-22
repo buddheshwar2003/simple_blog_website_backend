@@ -64,7 +64,7 @@ public class AuthService {
         ResponseCookie cookie = ResponseCookie.from("refreshToken",refreshToken.getToken())
                 .httpOnly(true)
                 .secure(true)
-                .path("/auth/refresh")
+                .path("/auth")
                 .maxAge(7*24*60*60)
                 .sameSite("Strict")
                 .build();
@@ -107,7 +107,8 @@ public class AuthService {
         );
     }
 
-    public void logout(HttpServletResponse response) {
+    public void logout(String token , HttpServletResponse response) {
+        refreshTokenService.delete(token);
         Cookie cookie = new Cookie("refreshToken", null);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);

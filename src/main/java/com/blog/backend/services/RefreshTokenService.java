@@ -2,6 +2,7 @@ package com.blog.backend.services;
 
 import com.blog.backend.domain.entities.RefreshToken;
 import com.blog.backend.repositories.RefreshTokenRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -15,7 +16,7 @@ public class RefreshTokenService {
     public RefreshTokenService(RefreshTokenRepository repo) {
         this.repo = repo;
     }
-
+    @Transactional
     public RefreshToken create(String email){
         repo.deleteByEmail(email); //If you want to logout if another user login in another device
 
@@ -30,14 +31,13 @@ public class RefreshTokenService {
 
     public  RefreshToken verify(String token){
         RefreshToken refreshToken = repo.findByToken(token).orElseThrow(()->new RuntimeException("Invalid Refresh Token"));
-
         if(refreshToken.getExpiryDate().isBefore(Instant.now())){
             repo.delete(refreshToken);
             throw new RuntimeException("Refresh Token Expired");
         }
         return refreshToken;
     }
-
+    @Transactional
     public void delete(String token){
         repo.findByToken(token).ifPresent(repo::delete);
     }
