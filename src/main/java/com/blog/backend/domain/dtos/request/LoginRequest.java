@@ -1,4 +1,4 @@
-package com.blog.backend.domain.dtos;
+package com.blog.backend.domain.dtos.request;
 
 public class LoginRequest {
     private String email;

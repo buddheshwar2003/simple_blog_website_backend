@@ -256,10 +256,10 @@ else
   tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
 fi
 
-# Find the actual extracted directory name (handles snapshots where filename != directory name)
+# Find the actual extracted directory author (handles snapshots where filename != directory author)
 actualDistributionDir=""
 
-# First try the expected directory name (for regular distributions)
+# First try the expected directory author (for regular distributions)
 if [ -d "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" ]; then
   if [ -f "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/bin/$MVN_CMD" ]; then
     actualDistributionDir="$distributionUrlNameMain"
@@ -268,7 +268,7 @@ fi
 
 # If not found, search for any directory with the Maven executable (for snapshots)
 if [ -z "$actualDistributionDir" ]; then
-  # enable globbing to iterate over items
+  # enable globbing to iterate over postList
   set +f
   for dir in "$TMP_DOWNLOAD_DIR"/*; do
     if [ -d "$dir" ]; then

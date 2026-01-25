@@ -1,6 +1,6 @@
 package com.blog.backend.controllers;
 
-import com.blog.backend.domain.dtos.ApiErrorResponse;
+import com.blog.backend.domain.dtos.response.ApiErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

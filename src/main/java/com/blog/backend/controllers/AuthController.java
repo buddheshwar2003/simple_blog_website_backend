@@ -1,18 +1,16 @@
 package com.blog.backend.controllers;
 
-import com.blog.backend.domain.dtos.LoginRequest;
-import com.blog.backend.domain.dtos.LoginResponse;
-import com.blog.backend.domain.dtos.LoginResult;
-import com.blog.backend.domain.dtos.RegisterRequest;
+import com.blog.backend.domain.dtos.request.LoginRequest;
+import com.blog.backend.domain.dtos.response.LoginResponse;
+import com.blog.backend.domain.dtos.response.LoginResult;
+import com.blog.backend.domain.dtos.request.RegisterRequest;
 import com.blog.backend.domain.entities.User;
 import com.blog.backend.services.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @CrossOrigin(origins = "http://localhost:3000" , allowCredentials = "true")
 @RestController

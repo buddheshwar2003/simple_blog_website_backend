@@ -1,4 +1,4 @@
-package com.blog.backend.domain.dtos;
+package com.blog.backend.domain.dtos.request;
 
 public class RegisterRequest {
     private String email;
@@ -57,7 +57,7 @@ public class RegisterRequest {
         return "RegisterRequest{" +
                 "email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", name='" + name + '\'' +
+                ", author='" + name + '\'' +
                 '}';
     }
 

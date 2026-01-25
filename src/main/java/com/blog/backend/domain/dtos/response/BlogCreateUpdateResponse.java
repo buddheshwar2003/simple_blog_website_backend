@@ -1,4 +1,4 @@
-package com.blog.backend.domain.dtos;
+package com.blog.backend.domain.dtos.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

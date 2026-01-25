@@ -1,7 +1,7 @@
 package com.blog.backend.mapper;
 
-import com.blog.backend.domain.dtos.BlogCreateUpdateRequest;
-import com.blog.backend.domain.dtos.BlogCreateUpdateResponse;
+import com.blog.backend.domain.dtos.request.BlogCreateUpdateRequest;
+import com.blog.backend.domain.dtos.response.BlogCreateUpdateResponse;
 import com.blog.backend.domain.entities.Posts;
 import org.springframework.stereotype.Component;
 

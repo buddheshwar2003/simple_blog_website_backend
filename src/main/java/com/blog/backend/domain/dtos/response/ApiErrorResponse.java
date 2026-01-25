@@ -1,4 +1,4 @@
-package com.blog.backend.domain.dtos;
+package com.blog.backend.domain.dtos.response;
 
 import java.util.List;
 import java.util.Objects;
