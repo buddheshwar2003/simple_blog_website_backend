@@ -20,7 +20,7 @@ public class BlogMapper {
     public BlogCreateUpdateResponse toResponse(Posts post){
         BlogCreateUpdateResponse createdBlog = new BlogCreateUpdateResponse();
         createdBlog.setAuthorName(post.getAuthor().getName());
-        createdBlog.setCategoryName(post.getCategory().getName());
+        createdBlog.setCategory(post.getCategory().getName());
         createdBlog.setLastUpdate(post.getUpdatedAt());
         createdBlog.setId(post.getId());
         createdBlog.setTitle(post.getTitle());

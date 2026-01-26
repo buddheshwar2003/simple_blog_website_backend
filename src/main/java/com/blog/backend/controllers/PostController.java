@@ -37,7 +37,7 @@ public class PostController {
                     page = 0,
                     size = 10,
                     sort = "createdAt",
-                    direction = Sort.Direction.ASC
+                    direction = Sort.Direction.DESC
             )
             Pageable pageable
     ) {
@@ -53,7 +53,7 @@ public class PostController {
             page = 0,
             size = 10,
             sort = "createdAt",
-            direction = Sort.Direction.ASC
+            direction = Sort.Direction.DESC
     )Pageable pageable, @AuthenticationPrincipal UserDetails userDetails){
         Page<PostDto> page = postService.getMyPosts(pageable,userDetails.getUsername());
 
@@ -72,6 +72,13 @@ public class PostController {
     public ResponseEntity<BlogCreateUpdateResponse> create(@RequestBody BlogCreateUpdateRequest blog , @AuthenticationPrincipal UserDetails userDetails){
        BlogCreateUpdateResponse savedBlog = postService.createPost(blog,userDetails.getUsername());
        return new ResponseEntity<>(savedBlog, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/update/{id}")
+    public  ResponseEntity<BlogCreateUpdateResponse> update(@PathVariable UUID id,@RequestBody BlogCreateUpdateRequest blog , @AuthenticationPrincipal UserDetails userDetails){
+        BlogCreateUpdateResponse updatedBlog = postService.updatePost(id,blog,userDetails.getUsername());
+        return new ResponseEntity<BlogCreateUpdateResponse>(updatedBlog, HttpStatus.CREATED);
+
     }
 
 }

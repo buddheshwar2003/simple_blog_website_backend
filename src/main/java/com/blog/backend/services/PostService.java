@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -36,7 +37,7 @@ public class PostService {
 
     public BlogCreateUpdateResponse createPost(BlogCreateUpdateRequest blog , String username){
        User user = userRepository.findByEmail(username).orElseThrow(()-> new RuntimeException("User no found") );
-        String categoryName = blog.getCategoryName().trim().toLowerCase();
+        String categoryName = blog.getCategory().trim().toLowerCase();
 
         Category category = categoryRepository.findByName(categoryName)
                 .orElseGet(() -> {
@@ -64,5 +65,53 @@ public class PostService {
     public PostDto getPostById(UUID id) {
         Posts posts = postRepository.findById(id).orElseThrow(()-> new RuntimeException("Post not Found"));
         return postMapper.toResponseDto(posts);
+    }
+
+    public BlogCreateUpdateResponse updatePost(
+            UUID id,
+            BlogCreateUpdateRequest blog,
+            String username
+    ) {
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Posts post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        // ✅ Authorization check (IMPORTANT)
+        if (!post.getAuthor().getId().equals(user.getId())) {
+            throw new RuntimeException("You don't have permission to update this post");
+        }
+
+        // ✅ Update title only if changed
+        if (!Objects.equals(blog.getTitle(), post.getTitle())) {
+            post.setTitle(blog.getTitle());
+        }
+
+        // ✅ Update content only if changed
+        if (!Objects.equals(blog.getContent(), post.getContent())) {
+            post.setContent(blog.getContent());
+        }
+
+        // ✅ Update category only if changed
+        if (blog.getCategory() != null &&
+                !Objects.equals(blog.getCategory(), post.getCategory().getName())) {
+
+            String categoryName = blog.getCategory().trim().toLowerCase();
+
+            Category category = categoryRepository.findByName(categoryName)
+                    .orElseGet(() -> {
+                        Category newCategory = new Category();
+                        newCategory.setName(categoryName);
+                        return categoryRepository.save(newCategory);
+                    });
+
+            post.setCategory(category);
+        }
+
+        // ✅ JPA dirty checking saves automatically
+        Posts updatedPost = postRepository.save(post);
+
+        return blogMapper.toResponse(updatedPost);
     }
 }

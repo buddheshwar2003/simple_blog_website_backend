@@ -7,15 +7,15 @@ public class BlogCreateUpdateResponse {
     private UUID id;
     private String title;
     private String content;
-    private String categoryName;
+    private String category;
     private String authorName;
     private LocalDateTime lastUpdate;
 
-    public BlogCreateUpdateResponse(UUID id, String title, String content, String categoryName, String authorName, LocalDateTime lastUpdate) {
+    public BlogCreateUpdateResponse(UUID id, String title, String content, String category, String authorName, LocalDateTime lastUpdate) {
         this.id = id;
         this.title = title;
         this.content = content;
-        this.categoryName = categoryName;
+        this.category = category;
         this.authorName = authorName;
         this.lastUpdate = lastUpdate;
     }
@@ -47,12 +47,12 @@ public class BlogCreateUpdateResponse {
         this.content = content;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public String getCategory() {
+        return category;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getAuthorName() {

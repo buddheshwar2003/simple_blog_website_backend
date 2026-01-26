@@ -4,14 +4,14 @@ package com.blog.backend.domain.dtos.request;
 public class BlogCreateUpdateRequest {
     private String title;
     private String content;
-    private String categoryName;
+    private String category;
 
     @Override
     public String toString() {
         return "BlogCreateUpdateRequest{" +
                 "title='" + title + '\'' +
                 ", content='" + content + '\'' +
-                ", categoryName='" + categoryName + '\'' +
+                ", categoryName='" + category + '\'' +
                 '}';
     }
 
@@ -31,11 +31,11 @@ public class BlogCreateUpdateRequest {
         this.content = content;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public String getCategory() {
+        return category;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

@@ -70,7 +70,7 @@ public class AuthService {
                 .secure(true)
                 .path("/auth")
                 .maxAge(7*24*60*60)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
         UserResponseDto userDetails = userMapper.toResponse(user);
 
