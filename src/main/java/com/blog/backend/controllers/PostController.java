@@ -18,8 +18,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+<<<<<<< Updated upstream
 
 @CrossOrigin(origins = "https://simple-blog-website-frontend.vercel.app" , allowCredentials = "true")
+=======
+@CrossOrigin(origins = "http://localhost:3000" , allowCredentials = "true")
+>>>>>>> Stashed changes
 @RestController
 @RequestMapping(path = "/post")
 public class PostController {
