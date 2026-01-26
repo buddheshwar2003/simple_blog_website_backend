@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 
-@CrossOrigin(origins = "https://simple-blog-website-frontend.vercel.app/" , allowCredentials = "true")
+@CrossOrigin(origins = "https://simple-blog-website-frontend.vercel.app" , allowCredentials = "true")
 @RestController
 @RequestMapping(path = "/post")
 public class PostController {
