@@ -57,7 +57,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOriginPatterns(
-                List.of("https://simple-blog-website-frontend.vercel.app")
+                List.of("https://simple-blog-website-frontend.vercel.app","http://localhost:3000")
         );
 
         config.setAllowedMethods(List.of(

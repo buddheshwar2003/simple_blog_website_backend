@@ -2,6 +2,8 @@ package com.blog.backend.domain.entities;
 
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import java.util.UUID;
@@ -29,7 +31,8 @@ public class Posts {
         this.status = status;
     }
 
-    public Posts(UUID id, String title, String content, PostStatus status, User author, Category category, LocalDateTime createdAt, LocalDateTime updatedAt) {
+
+    public Posts(UUID id, String title, String content, PostStatus status, User author, Category category, LocalDateTime createdAt, LocalDateTime updatedAt, List<Comments> comment) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -38,6 +41,7 @@ public class Posts {
         this.category = category;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.comment = comment;
     }
 
     public UUID getId() {
@@ -111,6 +115,16 @@ public class Posts {
 	private LocalDateTime createdAt;
 	@Column(nullable = false)
 	private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Comments> comment = new ArrayList<>();
+
+    public List<Comments> getComment() {
+        return comment;
+    }
+
+    public void setComment(List<Comments> comment) {
+        this.comment = comment;
+    }
 
     @Override
     public boolean equals(Object o) {

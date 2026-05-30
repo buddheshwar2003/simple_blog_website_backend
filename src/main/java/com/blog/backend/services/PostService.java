@@ -2,20 +2,26 @@ package com.blog.backend.services;
 
 import com.blog.backend.domain.PostStatus;
 import com.blog.backend.domain.dtos.request.BlogCreateUpdateRequest;
+import com.blog.backend.domain.dtos.request.CommentRequest;
 import com.blog.backend.domain.dtos.response.BlogCreateUpdateResponse;
+import com.blog.backend.domain.dtos.response.CommentResponse;
 import com.blog.backend.domain.dtos.response.PostDto;
 import com.blog.backend.domain.entities.Category;
+import com.blog.backend.domain.entities.Comments;
 import com.blog.backend.domain.entities.Posts;
 import com.blog.backend.domain.entities.User;
 import com.blog.backend.mapper.BlogMapper;
+import com.blog.backend.mapper.CommentsMapper;
 import com.blog.backend.mapper.PostMapper;
 import com.blog.backend.repositories.CategoryRepository;
+import com.blog.backend.repositories.CommentRepository;
 import com.blog.backend.repositories.PostRepository;
 import com.blog.backend.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -27,12 +33,16 @@ public class PostService {
     private final PostMapper postMapper;
     private final CategoryRepository categoryRepository;
     private final PostRepository postRepository;
-    public PostService(UserRepository userRepository, BlogMapper blogMapper, PostMapper postMapper, CategoryRepository categoryRepository, PostRepository postRepository) {
+    private final CommentRepository commentRepository;
+    private final CommentsMapper commentsMapper;
+    public PostService(UserRepository userRepository, BlogMapper blogMapper, PostMapper postMapper, CategoryRepository categoryRepository, PostRepository postRepository, CommentRepository commentRepository, CommentsMapper commentsMapper) {
         this.userRepository = userRepository;
         this.blogMapper = blogMapper;
         this.postMapper = postMapper;
         this.categoryRepository = categoryRepository;
         this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
+        this.commentsMapper = commentsMapper;
     }
 
     public BlogCreateUpdateResponse createPost(BlogCreateUpdateRequest blog , String username){
@@ -113,5 +123,20 @@ public class PostService {
         Posts updatedPost = postRepository.save(post);
 
         return blogMapper.toResponse(updatedPost);
+    }
+
+    public void comment(CommentRequest request, String username) {
+        User user = userRepository.findByEmail(username).orElseThrow(()-> new RuntimeException("User no found") );
+        Posts posts = postRepository.findById(request.getPostId()).orElseThrow(()-> new RuntimeException("Post not found"));
+        Comments comments = commentsMapper.toEntity(request);
+        comments.setPost(posts);
+        comments.setAuthor(user);
+        commentRepository.save(comments);
+    }
+
+    public Page<CommentResponse> getComments(Pageable pageable, UUID id) {
+        Posts posts = postRepository.findById(id).orElseThrow(()-> new RuntimeException("Post not found"));
+        Page<Comments> comments = commentRepository.findAllByPostId(id,pageable);
+        return comments.map(commentsMapper::toResponse);
     }
 }

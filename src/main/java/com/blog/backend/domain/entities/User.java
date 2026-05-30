@@ -20,19 +20,22 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-    public User(UUID id, String email, String password, String name, List<Posts> posts, LocalDateTime createdAt) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.posts = posts;
-        this.createdAt = createdAt;
-    }
+
     public User() {
     }
 
     public String getEmail() {
         return email;
+    }
+
+    public User(UUID id, String email, String password, String name, List<Posts> posts, List<Comments> comments, LocalDateTime createdAt) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.posts = posts;
+        this.comments = comments;
+        this.createdAt = createdAt;
     }
 
     public void setEmail(String email) {
@@ -88,9 +91,20 @@ public class User {
 	@OneToMany(mappedBy = "author" , cascade = CascadeType.ALL , orphanRemoval = true)
 	private List<Posts> posts=new ArrayList<>();
 
+    @OneToMany(mappedBy = "author",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Comments> comments = new ArrayList<>();
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
-	@Override
+
+    public void setComments(List<Comments> comments) {
+        this.comments = comments;
+    }
+
+    public List<Comments> getComments() {
+        return comments;
+    }
+
+    @Override
 	public int hashCode() {
 		return Objects.hash(createdAt, email, id, name, password);
 	}

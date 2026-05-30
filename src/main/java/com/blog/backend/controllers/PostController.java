@@ -2,7 +2,9 @@ package com.blog.backend.controllers;
 
 import com.blog.backend.domain.dtos.common.PageResponse;
 import com.blog.backend.domain.dtos.request.BlogCreateUpdateRequest;
+import com.blog.backend.domain.dtos.request.CommentRequest;
 import com.blog.backend.domain.dtos.response.BlogCreateUpdateResponse;
+import com.blog.backend.domain.dtos.response.CommentResponse;
 import com.blog.backend.domain.dtos.response.PostDto;
 import com.blog.backend.domain.entities.Posts;
 import com.blog.backend.services.PostService;
@@ -16,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -79,6 +82,19 @@ public class PostController {
         BlogCreateUpdateResponse updatedBlog = postService.updatePost(id,blog,userDetails.getUsername());
         return new ResponseEntity<BlogCreateUpdateResponse>(updatedBlog, HttpStatus.CREATED);
 
+    }
+    @PostMapping("/comment")
+    public void comment(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CommentRequest request){
+        postService.comment(request,userDetails.getUsername());
+    }
+    @GetMapping("/comments/{id}")
+    public ResponseEntity<PageResponse<CommentResponse>> getComment(@PathVariable UUID id, @PageableDefault(
+            page = 0,
+            size = 10,
+            sort = "createdAt",
+            direction = Sort.Direction.DESC
+    )Pageable pageable){
+        return new ResponseEntity<>(PageResponse.from(postService.getComments(pageable,id)),HttpStatus.OK);
     }
 
 }
