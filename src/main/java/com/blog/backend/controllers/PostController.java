@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 
 
-@CrossOrigin(origins = "https://simple-blog-website-frontend.vercel.app" , allowCredentials = "true")
 @RestController
 @RequestMapping(path = "/post")
 public class PostController {
@@ -42,9 +41,10 @@ public class PostController {
                     sort = "createdAt",
                     direction = Sort.Direction.DESC
             )
-            Pageable pageable
+            Pageable pageable,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Page<PostDto> page = postService.getAllPosts(pageable);
+        Page<PostDto> page = postService.getAllPosts(pageable,userDetails.getUsername());
 
         PageResponse<PostDto> response = PageResponse.from(page);
 
@@ -63,10 +63,23 @@ public class PostController {
         PageResponse<PostDto> response = PageResponse.from(page);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/user/{id}")
+    public ResponseEntity<PageResponse<PostDto>> getMyPost(
+            @PageableDefault(
+                    page = 0,
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            )Pageable pageable, @PathVariable UUID id){
+        Page<PostDto> page = postService.getUserPosts(pageable,id);
+
+        PageResponse<PostDto> response = PageResponse.from(page);
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PostDto> getPostById(@PathVariable UUID id){
-        PostDto response = postService.getPostById(id);
+    public ResponseEntity<PostDto> getPostById(@PathVariable UUID id,@AuthenticationPrincipal UserDetails userDetails){
+        PostDto response = postService.getPostById(id,userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
@@ -82,19 +95,6 @@ public class PostController {
         BlogCreateUpdateResponse updatedBlog = postService.updatePost(id,blog,userDetails.getUsername());
         return new ResponseEntity<BlogCreateUpdateResponse>(updatedBlog, HttpStatus.CREATED);
 
-    }
-    @PostMapping("/comment")
-    public void comment(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CommentRequest request){
-        postService.comment(request,userDetails.getUsername());
-    }
-    @GetMapping("/comments/{id}")
-    public ResponseEntity<PageResponse<CommentResponse>> getComment(@PathVariable UUID id, @PageableDefault(
-            page = 0,
-            size = 10,
-            sort = "createdAt",
-            direction = Sort.Direction.DESC
-    )Pageable pageable){
-        return new ResponseEntity<>(PageResponse.from(postService.getComments(pageable,id)),HttpStatus.OK);
     }
 
 }

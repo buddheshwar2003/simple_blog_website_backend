@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public class UserResponseDto {
     private UUID id;
- private String name;
- private String email;
+    private String name;
+    private String email;
 
     public UserResponseDto(UUID id, String name, String email) {
         this.id = id;

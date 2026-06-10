@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public record PageResponse<T>(
-        List<T> postList,
+        List<T> results,
         int page,
         int size,
         long totalItems,

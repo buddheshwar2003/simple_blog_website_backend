@@ -9,7 +9,7 @@ public class UserMapper {
     public UserResponseDto toResponse(User user1){
         UserResponseDto user = new UserResponseDto();
         user.setId(user1.getId());
-        user.setEmail(user1.getEmail());
+        user.setEmail(user1.getEmail().toLowerCase());
         user.setName(user1.getName());
         return user;
     }

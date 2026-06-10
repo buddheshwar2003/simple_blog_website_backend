@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .cors()          // ← THIS is the key line
                 .and()
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**","/ws/**").permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                 http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

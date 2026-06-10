@@ -28,16 +28,6 @@ public class User {
         return email;
     }
 
-    public User(UUID id, String email, String password, String name, List<Posts> posts, List<Comments> comments, LocalDateTime createdAt) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.posts = posts;
-        this.comments = comments;
-        this.createdAt = createdAt;
-    }
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -91,11 +81,35 @@ public class User {
 	@OneToMany(mappedBy = "author" , cascade = CascadeType.ALL , orphanRemoval = true)
 	private List<Posts> posts=new ArrayList<>();
 
+    public User(UUID id, String email, String password, String name, List<Posts> posts, LocalDateTime lastSeen, List<Comments> comments, LocalDateTime createdAt, int unreadNotificationCount) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.posts = posts;
+        this.lastSeen = lastSeen;
+        this.comments = comments;
+        this.createdAt = createdAt;
+        this.unreadNotificationCount = unreadNotificationCount;
+    }
+
+    @Column
+    private LocalDateTime lastSeen;
+
+    public LocalDateTime getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(LocalDateTime lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
     @OneToMany(mappedBy = "author",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Comments> comments = new ArrayList<>();
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
-
+    @Column(nullable = false)
+    private int unreadNotificationCount = 0;
     public void setComments(List<Comments> comments) {
         this.comments = comments;
     }
@@ -125,4 +139,12 @@ public class User {
 	protected void onCreate() {
 		this.createdAt=LocalDateTime.now();
 	}
+
+    public int getUnreadNotificationCount() {
+        return unreadNotificationCount;
+    }
+
+    public void setUnreadNotificationCount(int unreadNotificationCount) {
+        this.unreadNotificationCount = unreadNotificationCount;
+    }
 }

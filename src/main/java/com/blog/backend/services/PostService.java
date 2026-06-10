@@ -2,26 +2,21 @@ package com.blog.backend.services;
 
 import com.blog.backend.domain.PostStatus;
 import com.blog.backend.domain.dtos.request.BlogCreateUpdateRequest;
-import com.blog.backend.domain.dtos.request.CommentRequest;
 import com.blog.backend.domain.dtos.response.BlogCreateUpdateResponse;
-import com.blog.backend.domain.dtos.response.CommentResponse;
 import com.blog.backend.domain.dtos.response.PostDto;
 import com.blog.backend.domain.entities.Category;
-import com.blog.backend.domain.entities.Comments;
 import com.blog.backend.domain.entities.Posts;
 import com.blog.backend.domain.entities.User;
 import com.blog.backend.mapper.BlogMapper;
-import com.blog.backend.mapper.CommentsMapper;
-import com.blog.backend.mapper.PostMapper;
+//import com.blog.backend.mapper.PostMapper;
 import com.blog.backend.repositories.CategoryRepository;
-import com.blog.backend.repositories.CommentRepository;
+import com.blog.backend.repositories.LikeRepository;
 import com.blog.backend.repositories.PostRepository;
 import com.blog.backend.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,20 +25,20 @@ import java.util.UUID;
 public class PostService {
     private final UserRepository userRepository;
     private final BlogMapper blogMapper;
-    private final PostMapper postMapper;
+//    private final PostMapper postMapper;
     private final CategoryRepository categoryRepository;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final CommentsMapper commentsMapper;
-    public PostService(UserRepository userRepository, BlogMapper blogMapper, PostMapper postMapper, CategoryRepository categoryRepository, PostRepository postRepository, CommentRepository commentRepository, CommentsMapper commentsMapper) {
+    private final LikeRepository likeRepository;
+
+    public PostService(UserRepository userRepository, BlogMapper blogMapper, CategoryRepository categoryRepository, PostRepository postRepository, LikeRepository likeRepository) {
         this.userRepository = userRepository;
         this.blogMapper = blogMapper;
-        this.postMapper = postMapper;
+//        this.postMapper = postMapper;
         this.categoryRepository = categoryRepository;
         this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
-        this.commentsMapper = commentsMapper;
+        this.likeRepository = likeRepository;
     }
+
 
     public BlogCreateUpdateResponse createPost(BlogCreateUpdateRequest blog , String username){
        User user = userRepository.findByEmail(username).orElseThrow(()-> new RuntimeException("User no found") );
@@ -63,18 +58,85 @@ public class PostService {
         return blogMapper.toResponse(postRepository.save(post));
     }
 
-    public Page<PostDto> getAllPosts(Pageable pageable) {
-        return postRepository.findAll(pageable).map(postMapper::toResponseDto);
+    public Page<PostDto> getAllPosts(Pageable pageable, String username) {
+        User currentUser = userRepository
+                .findByEmail(username)
+                .orElseThrow(()->new RuntimeException("User not Found"));
+
+        return postRepository.findAll(pageable)
+                .map(post -> {
+
+                    boolean liked =
+                            likeRepository.existsByUserAndPost(
+                                    currentUser,
+                                    post
+                            );
+
+                    return new PostDto(
+                            post.getId(),
+                            post.getAuthor().getEmail(),
+                            post.getAuthor().getId(),
+                            post.getAuthor().getName(),
+                            post.getTitle(),
+                            post.getContent(),
+                            post.getCategory().getName(),
+                            post.getUpdatedAt(),
+                            post.getLikeCount(),
+                            post.getCommentCount(),
+                            liked
+                    );
+                });
     }
 
     public Page<PostDto> getMyPosts(Pageable pageable, String username) {
         User user = userRepository.findByEmail(username).orElseThrow(()-> new RuntimeException("Uer not found"));
-        return postRepository.findByAuthorId(user.getId(),pageable).map(postMapper::toResponseDto);
+        return postRepository.findByAuthorId(user.getId(),pageable)
+                .map(post -> {
+
+                    boolean liked =
+                            likeRepository.existsByUserAndPost(
+                                    user,
+                                    post
+                            );
+
+                    return new PostDto(
+                            post.getId(),
+                            post.getAuthor().getEmail(),
+                            post.getAuthor().getId(),
+                            post.getAuthor().getName(),
+                            post.getTitle(),
+                            post.getContent(),
+                            post.getCategory().getName(),
+                            post.getUpdatedAt(),
+                            post.getLikeCount(),
+                            post.getCommentCount(),
+                            liked
+                    );
+                });
     }
 
-    public PostDto getPostById(UUID id) {
-        Posts posts = postRepository.findById(id).orElseThrow(()-> new RuntimeException("Post not Found"));
-        return postMapper.toResponseDto(posts);
+    public PostDto getPostById(UUID id, String username) {
+        User user = userRepository.findByEmail(username).orElseThrow(()-> new RuntimeException("Uer not found"));
+        Posts post = postRepository.findById(id).orElseThrow(()-> new RuntimeException("Post not Found"));
+        boolean liked =
+                likeRepository.existsByUserAndPost(
+                        user,
+                        post
+                );
+
+        return new PostDto(
+                post.getId(),
+                post.getAuthor().getEmail(),
+                post.getAuthor().getId(),
+                post.getAuthor().getName(),
+                post.getTitle(),
+                post.getContent(),
+                post.getCategory().getName(),
+                post.getUpdatedAt(),
+                post.getLikeCount(),
+                post.getCommentCount(),
+                liked
+        );
     }
 
     public BlogCreateUpdateResponse updatePost(
@@ -125,18 +187,31 @@ public class PostService {
         return blogMapper.toResponse(updatedPost);
     }
 
-    public void comment(CommentRequest request, String username) {
-        User user = userRepository.findByEmail(username).orElseThrow(()-> new RuntimeException("User no found") );
-        Posts posts = postRepository.findById(request.getPostId()).orElseThrow(()-> new RuntimeException("Post not found"));
-        Comments comments = commentsMapper.toEntity(request);
-        comments.setPost(posts);
-        comments.setAuthor(user);
-        commentRepository.save(comments);
-    }
 
-    public Page<CommentResponse> getComments(Pageable pageable, UUID id) {
-        Posts posts = postRepository.findById(id).orElseThrow(()-> new RuntimeException("Post not found"));
-        Page<Comments> comments = commentRepository.findAllByPostId(id,pageable);
-        return comments.map(commentsMapper::toResponse);
+    public Page<PostDto> getUserPosts(Pageable pageable, UUID id) {
+        User user = userRepository.findById(id).orElseThrow(()-> new RuntimeException("User not found"));
+        return postRepository.findByAuthorId(user.getId(),pageable)
+                .map(post -> {
+
+                    boolean liked =
+                            likeRepository.existsByUserAndPost(
+                                    user,
+                                    post
+                            );
+
+                    return new PostDto(
+                            post.getId(),
+                            post.getAuthor().getEmail(),
+                            post.getAuthor().getId(),
+                            post.getAuthor().getName(),
+                            post.getTitle(),
+                            post.getContent(),
+                            post.getCategory().getName(),
+                            post.getUpdatedAt(),
+                            post.getLikeCount(),
+                            post.getCommentCount(),
+                            liked
+                    );
+                });
     }
 }

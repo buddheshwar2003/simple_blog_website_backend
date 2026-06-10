@@ -22,7 +22,11 @@ public class Posts {
 	private String title;
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
+    @Column(nullable = false)
+    private int likeCount = 0;
 
+    @Column(nullable = false)
+    private int commentCount = 0;
     public Posts() {
 
     }
@@ -31,17 +35,34 @@ public class Posts {
         this.status = status;
     }
 
+    public int getLikeCount() {
+        return likeCount;
+    }
 
-    public Posts(UUID id, String title, String content, PostStatus status, User author, Category category, LocalDateTime createdAt, LocalDateTime updatedAt, List<Comments> comment) {
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public Posts(UUID id, String title, String content, int likeCount, int commentCount, PostStatus status, User author, Category category, LocalDateTime createdAt, LocalDateTime updatedAt, List<Comments> comments) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
         this.status = status;
         this.author = author;
         this.category = category;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.comment = comment;
+        this.comments = comments;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
     }
 
     public UUID getId() {
@@ -116,28 +137,27 @@ public class Posts {
 	@Column(nullable = false)
 	private LocalDateTime updatedAt;
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Comments> comment = new ArrayList<>();
+    private List<Comments> comments = new ArrayList<>();
 
-    public List<Comments> getComment() {
-        return comment;
+    public List<Comments> getComments() {
+        return comments;
     }
 
-    public void setComment(List<Comments> comment) {
-        this.comment = comment;
+    public void setComments(List<Comments> comments) {
+        this.comments = comments;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Posts posts = (Posts) o;
-        return Objects.equals(id, posts.id) && Objects.equals(title, posts.title) && Objects.equals(content, posts.content) && status == posts.status && Objects.equals(author, posts.author) && Objects.equals(category, posts.category) && Objects.equals(createdAt, posts.createdAt) && Objects.equals(updatedAt, posts.updatedAt);
+        if (this == o) return true;
+        if (!(o instanceof Posts posts)) return false;
+        return Objects.equals(id, posts.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, content, status, author, category, createdAt, updatedAt);
+        return Objects.hash(id);
     }
-
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();

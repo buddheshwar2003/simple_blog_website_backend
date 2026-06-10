@@ -3,14 +3,20 @@ package com.blog.backend.domain.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 @Entity
-@Table(name = "comments")
+@Table(
+        name = "comments",
+        indexes = {
+                @Index(name = "idx_comment_post", columnList = "post_id")
+        }
+)
 public class Comments {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @Column
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String comment;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",nullable = false)
@@ -83,6 +89,17 @@ public class Comments {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Comments comments)) return false;
+        return Objects.equals(id, comments.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @PrePersist
