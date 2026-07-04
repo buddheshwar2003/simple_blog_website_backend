@@ -3,6 +3,7 @@ package com.blog.backend.services;
 import com.blog.backend.domain.NotificationType;
 import com.blog.backend.domain.dtos.request.CommentRequest;
 import com.blog.backend.domain.dtos.response.CommentResponse;
+import com.blog.backend.domain.dtos.response.NotificationSocketResponse;
 import com.blog.backend.domain.entities.*;
 import com.blog.backend.mapper.BlogMapper;
 import com.blog.backend.mapper.CommentsMapper;
@@ -10,6 +11,7 @@ import com.blog.backend.mapper.CommentsMapper;
 import com.blog.backend.repositories.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,14 +26,15 @@ public class LikeAndCommentService {
     private final CommentsMapper commentsMapper;
     private final LikeRepository likeRepository;
     private final NotificationsRepository notificationsRepository;
-
-    public LikeAndCommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, CommentsMapper commentsMapper, LikeRepository likeRepository, NotificationsRepository notificationsRepository) {
+    private final SimpMessagingTemplate messagingTemplate;
+    public LikeAndCommentService(UserRepository userRepository, PostRepository postRepository, CommentRepository commentRepository, CommentsMapper commentsMapper, LikeRepository likeRepository, NotificationsRepository notificationsRepository, SimpMessagingTemplate messagingTemplate) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.commentsMapper = commentsMapper;
         this.likeRepository = likeRepository;
         this.notificationsRepository = notificationsRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public CommentResponse comment(CommentRequest request, String username) {
@@ -58,6 +61,18 @@ public class LikeAndCommentService {
         );
 
         notificationsRepository.save(notification);
+        NotificationSocketResponse response =
+                new NotificationSocketResponse(
+                        "COMMENT",
+                        user.getName() + " comment on your post",
+                        receiver.getUnreadNotificationCount()
+                );
+
+        messagingTemplate.convertAndSendToUser(
+                receiver.getEmail(),
+                "/queue/notifications",
+                response
+        );
         return commentsMapper.toResponse(saveComment);
     }
 
@@ -99,6 +114,18 @@ public class LikeAndCommentService {
                 );
 
                 notificationsRepository.save(notification);
+                NotificationSocketResponse response =
+                        new NotificationSocketResponse(
+                                "LIKE",
+                                user.getName() + " like your post",
+                                receiver.getUnreadNotificationCount()
+                        );
+
+                messagingTemplate.convertAndSendToUser(
+                        receiver.getEmail(),
+                        "/queue/notifications",
+                        response
+                );
             }
 
         }

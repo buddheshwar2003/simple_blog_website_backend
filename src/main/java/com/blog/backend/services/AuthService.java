@@ -57,29 +57,29 @@ public class AuthService {
 
 
     public LoginResult login(LoginRequest req) {
-    try {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()));
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()));
 
-        User user = userRepository.findByEmail(req.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
-        String token = jwtUtil.getToken(user.getEmail());
+            User user = userRepository.findByEmail(req.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
+            String token = jwtUtil.getToken(user.getEmail());
 
-        RefreshToken refreshToken = refreshTokenService.create(user.getEmail());
+            RefreshToken refreshToken = refreshTokenService.create(user.getEmail());
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken",refreshToken.getToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/auth")
-                .maxAge(7*24*60*60)
-                .sameSite("None")
-                .build();
-        UserResponseDto userDetails = userMapper.toResponse(user);
+            ResponseCookie cookie = ResponseCookie.from("refreshToken",refreshToken.getToken())
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/auth")
+                    .maxAge(7*24*60*60)
+                    .sameSite("None")
+                    .build();
+            UserResponseDto userDetails = userMapper.toResponse(user);
 
-        return new LoginResult(new LoginResponse("Login Successful", token,userDetails),cookie);
+            return new LoginResult(new LoginResponse("Login Successful", token,userDetails),cookie);
 
-    } catch (Exception e) {
-        e.printStackTrace(); // 🔥 SHOW REAL ERROR
-        throw e;
-    }
+        } catch (Exception e) {
+            e.printStackTrace(); // 🔥 SHOW REAL ERROR
+            throw e;
+        }
     }
 
     public LoginResponse refresh(String refreshToken) {

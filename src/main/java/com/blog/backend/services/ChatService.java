@@ -11,10 +11,14 @@ import com.blog.backend.repositories.MessageRepository;
 import com.blog.backend.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -70,6 +74,7 @@ public class ChatService {
                 messageMapper.toResponse(message)
         );
     }
+
     public Page<MessageResponse> getMessages(
             UUID friendId,
             String username,
@@ -94,11 +99,20 @@ public class ChatService {
                         )
                         .orElseThrow();
 
-        return messageRepository
+        Page<MessageResponse> page = messageRepository
                 .findByRoomIdOrderByCreatedAtDesc(
                         room.getId(),
                         pageable
                 )
                 .map(messageMapper::toResponse);
+
+        List<MessageResponse> list = new ArrayList<>(page.getContent());
+        Collections.reverse(list);
+
+        return new PageImpl<>(
+                list,
+                pageable,
+                page.getTotalElements()
+        );
     }
 }
