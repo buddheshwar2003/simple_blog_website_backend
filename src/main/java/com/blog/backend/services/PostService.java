@@ -13,6 +13,7 @@ import com.blog.backend.repositories.CategoryRepository;
 import com.blog.backend.repositories.LikeRepository;
 import com.blog.backend.repositories.PostRepository;
 import com.blog.backend.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,22 +23,14 @@ import java.util.UUID;
 
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
     private final UserRepository userRepository;
     private final BlogMapper blogMapper;
-//    private final PostMapper postMapper;
     private final CategoryRepository categoryRepository;
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
-
-    public PostService(UserRepository userRepository, BlogMapper blogMapper, CategoryRepository categoryRepository, PostRepository postRepository, LikeRepository likeRepository) {
-        this.userRepository = userRepository;
-        this.blogMapper = blogMapper;
-//        this.postMapper = postMapper;
-        this.categoryRepository = categoryRepository;
-        this.postRepository = postRepository;
-        this.likeRepository = likeRepository;
-    }
+    private final S3Service s3Service;
 
 
     public BlogCreateUpdateResponse createPost(BlogCreateUpdateRequest blog , String username){
@@ -55,6 +48,10 @@ public class PostService {
         post.setAuthor(user);
         post.setCategory(category);
         post.setStatus(PostStatus.PUBLISHED);
+        if (blog.getImage() != null && !blog.getImage().isEmpty()) {
+            String imageUrl = s3Service.uploadFile(blog.getImage());
+            post.setImageUrl(imageUrl);
+        }
         return blogMapper.toResponse(postRepository.save(post));
     }
 
@@ -83,7 +80,8 @@ public class PostService {
                             post.getUpdatedAt(),
                             post.getLikeCount(),
                             post.getCommentCount(),
-                            liked
+                            liked,
+                            post.getImageUrl()
                     );
                 });
     }
@@ -110,7 +108,8 @@ public class PostService {
                             post.getUpdatedAt(),
                             post.getLikeCount(),
                             post.getCommentCount(),
-                            liked
+                            liked,
+                            post.getImageUrl()
                     );
                 });
     }
@@ -135,7 +134,8 @@ public class PostService {
                 post.getUpdatedAt(),
                 post.getLikeCount(),
                 post.getCommentCount(),
-                liked
+                liked,
+                post.getImageUrl()
         );
     }
 
@@ -210,7 +210,8 @@ public class PostService {
                             post.getUpdatedAt(),
                             post.getLikeCount(),
                             post.getCommentCount(),
-                            liked
+                            liked,
+                            post.getImageUrl()
                     );
                 });
     }

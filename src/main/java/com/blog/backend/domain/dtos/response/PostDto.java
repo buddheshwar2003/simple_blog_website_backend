@@ -14,7 +14,8 @@ public record PostDto(
         LocalDateTime updatedAt,
         int likeCount,
         int commentCount,
-        boolean likedByCurrentUser
+        boolean likedByCurrentUser,
+        String imageUrl
 ) {
 
 }

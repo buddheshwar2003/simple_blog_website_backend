@@ -85,7 +85,7 @@ public class PostController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<BlogCreateUpdateResponse> create(@RequestBody BlogCreateUpdateRequest blog , @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<BlogCreateUpdateResponse> create(@ModelAttribute BlogCreateUpdateRequest blog , @AuthenticationPrincipal UserDetails userDetails){
        BlogCreateUpdateResponse savedBlog = postService.createPost(blog,userDetails.getUsername());
        return new ResponseEntity<>(savedBlog, HttpStatus.CREATED);
     }
